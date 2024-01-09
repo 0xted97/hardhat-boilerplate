@@ -1,5 +1,6 @@
 {
   "name": "hardhat-project",
+  "author": "Ted Nguyen <nvkhiem2016@gmail.com>",
   "scripts": {
     "commit": "git-cz"
   },
