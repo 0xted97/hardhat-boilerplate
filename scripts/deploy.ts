@@ -1,6 +1,10 @@
 import { ethers } from "hardhat";
 
 async function main() {
+  const [deployer, wallet1, wallet2] = await ethers.getSigners();
+  console.log("🚀 ~ file: deploy.ts:5 ~ main ~ wallet2:", wallet2.address)
+  console.log("🚀 ~ file: deploy.ts:5 ~ main ~ wallet1:", wallet1.address)
+  console.log("🚀 ~ file: deploy.ts:5 ~ main ~ deployer:", deployer.address)
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
   const unlockTime = currentTimestampInSeconds + 60;
 
