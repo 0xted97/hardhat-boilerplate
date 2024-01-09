@@ -1,26 +1,23 @@
-import { ethers } from "hardhat";
+import { ethers, run } from "hardhat";
 
 async function main() {
   const [deployer, wallet1, wallet2] = await ethers.getSigners();
   console.log("🚀 ~ file: deploy.ts:5 ~ main ~ wallet2:", wallet2.address)
   console.log("🚀 ~ file: deploy.ts:5 ~ main ~ wallet1:", wallet1.address)
   console.log("🚀 ~ file: deploy.ts:5 ~ main ~ deployer:", deployer.address)
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  
 
-  const lockedAmount = ethers.parseEther("0.001");
+  const exampleTokenERC721 = await ethers.deployContract("ExampleTokenERC721");
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
+  await exampleTokenERC721.waitForDeployment();
+
+  const address = exampleTokenERC721.getAddress();
+  console.log("🚀 ~ file: deploy.ts:13 ~ main ~ exampleTokenERC721:", exampleTokenERC721.target)
+
+  await run("verify:verify", {
+    address,
+    constructorArguments: [],
   });
-
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere
