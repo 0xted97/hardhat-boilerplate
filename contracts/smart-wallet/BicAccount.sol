@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.12;
+pragma solidity ^0.8.23;
 
 /* solhint-disable avoid-low-level-calls */
 /* solhint-disable no-inline-assembly */
 /* solhint-disable reason-string */
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+// import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-
-// Core
 import "./core/BaseAccount.sol";
 import "./callback/TokenCallbackHandler.sol";
 
@@ -20,8 +19,6 @@ import "./callback/TokenCallbackHandler.sol";
   *  has a single signer that can send requests through the entryPoint.
   */
 contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initializable {
-    using ECDSA for bytes32;
-
     address public owner;
 
     IEntryPoint private immutable _entryPoint;
@@ -37,7 +34,6 @@ contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
     function entryPoint() public view virtual override returns (IEntryPoint) {
         return _entryPoint;
     }
-
 
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
@@ -80,7 +76,7 @@ contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
 
     /**
      * @dev The _entryPoint member is immutable, to reduce gas consumption.  To upgrade EntryPoint,
-     * a new implementation of BicAccount must be deployed with the new EntryPoint address, then upgrading
+     * a new implementation of SimpleAccount must be deployed with the new EntryPoint address, then upgrading
       * the implementation by calling `upgradeTo()`
      */
     function initialize(address anOwner) public virtual initializer {
@@ -98,16 +94,17 @@ contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
     }
 
     /// implement template method of BaseAccount
+    /// TODO: Please double-check: UserOperation with PackedUserOperation
     function _validateSignature(UserOperation calldata userOp, bytes32 userOpHash)
     internal override virtual returns (uint256 validationData) {
-        bytes32 hash = userOpHash.toEthSignedMessageHash();
-        if (owner != hash.recover(userOp.signature))
+        bytes32 hash = ECDSA.toEthSignedMessageHash(userOpHash);
+        if (owner != ECDSA.recover(hash, userOp.signature))
             return SIG_VALIDATION_FAILED;
         return 0;
     }
 
     function _call(address target, uint256 value, bytes memory data) internal {
-        (bool success, bytes memory result) = target.call{value : value}(data);
+        (bool success, bytes memory result) = target.call{value: value}(data);
         if (!success) {
             assembly {
                 revert(add(result, 32), mload(result))
@@ -126,7 +123,7 @@ contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
      * deposit more funds for this account in the entryPoint
      */
     function addDeposit() public payable {
-        entryPoint().depositTo{value : msg.value}(address(this));
+        entryPoint().depositTo{value: msg.value}(address(this));
     }
 
     /**
@@ -143,4 +140,3 @@ contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
         _onlyOwner();
     }
 }
-
