@@ -1,6 +1,6 @@
 {
-  "name": "hardhat-project",
-  "author": "Ted Nguyen <nvkhiem2016@gmail.com>",
+  "name": "bic-smart-contract",
+  "author": "Ted Nguyen <vietkhiem@evol.vn>",
   "scripts": {
     "commit": "git-cz"
   },
