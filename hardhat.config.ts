@@ -4,7 +4,16 @@ import "@nomicfoundation/hardhat-toolbox";
 import env from "./env";
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.19",
+  solidity: {
+    compilers: [
+      {
+        version: '0.8.20',
+        settings: {
+          optimizer: { enabled: true, runs: 1000000 }
+        }
+      },
+    ]
+  },
   networks: {
     arbitrum: {
       url: "https://arbitrum.llamarpc.com",
