@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.5",
+    "@uniswap/v3-periphery": "^1.4.4",
     "dotenv": "^16.3.1"
   }
 }
