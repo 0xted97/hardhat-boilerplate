@@ -95,7 +95,7 @@ contract BicAccount is BaseAccount, TokenCallbackHandler, UUPSUpgradeable, Initi
 
     /// implement template method of BaseAccount
     /// TODO: Please double-check: UserOperation with PackedUserOperation
-    function _validateSignature(UserOperation calldata userOp, bytes32 userOpHash)
+    function _validateSignature(PackedUserOperation calldata userOp, bytes32 userOpHash)
     internal override virtual returns (uint256 validationData) {
         bytes32 hash = ECDSA.toEthSignedMessageHash(userOpHash);
         if (owner != ECDSA.recover(hash, userOp.signature))
